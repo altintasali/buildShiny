@@ -1,0 +1,504 @@
+---
+title: "Building your first Shiny App"
+author: "Ali Altıntaş"
+date: "May 15, 2019"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{css,echo=FALSE}
+button.btn.collapsed:before
+{
+    content:'Click to reveal answer' ;
+    display:block;
+    width:150px;
+}
+button.btn:before
+{
+    content:'Hide Answer' ;
+    display:block;
+    width:150px;
+}
+```
+
+```{r,echo=FALSE,results='hide'}
+knitr::knit_hooks$set(drop1=function(before, options, envir) {
+    if (before) {
+        paste(
+            '<p>',
+'<button class="btn btn-primary collapsed" data-toggle="collapse" data-target="#ce1">',
+'</button>',
+'</p>',
+'<div class="collapse" id="ce1">',
+'<div class="card card-body">',  sep = "\n")
+    } else {
+        paste("</div>", "</div>", sep = "\n")
+    }
+})
+
+knitr::knit_hooks$set(drop2=function(before, options, envir) {
+    if (before) {
+        paste(
+            '<p>',
+'<button class="btn btn-primary collapsed" data-toggle="collapse" data-target="#ce2">',
+'</button>',
+'</p>',
+'<div class="collapse" id="ce2">',
+'<div class="card card-body">',  sep = "\n")
+    } else {
+        paste("</div>", "</div>", sep = "\n")
+    }
+})
+
+knitr::knit_hooks$set(drop3=function(before, options, envir) {
+    if (before) {
+        paste(
+            '<p>',
+'<button class="btn btn-primary collapsed" data-toggle="collapse" data-target="#ce3">',
+'</button>',
+'</p>',
+'<div class="collapse" id="ce3">',
+'<div class="card card-body">',  sep = "\n")
+    } else {
+        paste("</div>", "</div>", sep = "\n")
+    }
+})
+
+knitr::knit_hooks$set(drop4=function(before, options, envir) {
+    if (before) {
+        paste(
+            '<p>',
+'<button class="btn btn-primary collapsed" data-toggle="collapse" data-target="#ce4">',
+'</button>',
+'</p>',
+'<div class="collapse" id="ce4">',
+'<div class="card card-body">',  sep = "\n")
+    } else {
+        paste("</div>", "</div>", sep = "\n")
+    }
+})
+```
+
+# Getting started
+
+## Refreshing R knowledge
+In case that you are new to R, it is strongly recommended to get the basics. Here is a short course that will provide the basics in R. Please note that a basic understing of R is a strong requirement for builfding Shiny Apps.
+
+- [Basics in R](https://www.datacamp.com/courses/free-introduction-to-r?fbclid=IwAR03KSGIXdiMYyzEKeZp_9aU769WFdjSFpRfA_sA47K6aMc7rkb_M-lR1zQ)
+
+## Installing R, RStudio 
+We need R and RStudio to build a Shiny App. It is an easy process to install R/RStudio, so Google is your friend as always. However, if you would like to have a more structured guide, please follow:
+
+- [Installing R and RStudio](http://www.sthda.com/english/wiki/installing-r-and-rstudio-easy-r-programming?fbclid=IwAR3VLxkQQLyjCbGyZOC4qyyXE24dkzFbg68ta03wq9OHoqvzcaykGDapTLo)
+
+
+## Installing required R packages
+
+After you are done with the installations and you brushed your memory on R, we are ready to go.
+
+Now, it is time to install the required R packages that we will be using in this project.
+
+1. Open RStudio.
+2. Install the required packages by pasting the code below to R terminal:
+
+```{r eval=FALSE}
+install.packages("shiny")
+install.packages("ggplot2")
+
+```
+
+
+# How to build a Shiny App 
+Shiny app consists of 3 main components
+
+- **UI**: User interface object
+- **Server**: Server function
+- **Run**: A call to ```shinyApp``` function
+
+Once you create a Shiny Project, you will have the following structure on your RStudio session.
+```{r eval=FALSE}
+library(shiny)
+
+ui <- ...
+
+server <- ...
+
+shinyApp(ui = ui, server = server)
+```
+This is the skeleton of a Shiny App. We will be building everything upon this structure.
+
+Every app has a purpose, so does ours. In this project, we would like to create an application that
+
+1. reads our input data 
+2. gives summary stats
+3. generate interactive plots
+
+In this tutorial, we will create 2 apps and then merge them into one final application that will do all the tasks together. We will call the apps:
+1. File Uploader
+2. Data Plotter 
+3. UPD (**U**plodad & **P**lot **D**ata, so merge "File Uploader" and "Data Uploader")
+
+For this purpose, we will be using ``` iris ``` [dataset](https://en.wikipedia.org/wiki/Iris_flower_data_set). We can easily call this dataset from our R session, but this time we will be reading them from ```txt``` and ```csv``` files. Also, a k-means clustering has been performed for ```iris``` dataset and added as an extra column called **Cluster**. You can also create this dataset by yourself:
+
+```{r eval=FALSE}
+library(data.table)
+irisk <- iris
+
+set.seed(666)
+kres <- kmeans(iris[c(3,4)], 3, 20)$cluster
+kres[kres == 1] <- "A"
+kres[kres == 2] <- "B"
+kres[kres == 3] <- "C"
+
+irisk <- cbind(irisk, kres)
+colnames(irisk)[6] <- "Cluster"
+
+fwrite(irisk, file = "./data/iris.txt", sep = "\t")
+fwrite(irisk, file = "./data/iris.csv", sep = ";")
+```
+
+
+# Building the framework
+
+Let's start building the user interface:
+```{r eval=FALSE}
+library(shiny)
+
+# Define UI
+ui <- fluidPage(
+  
+)
+
+# Define server logic
+server <- function(input, output) {
+  
+}
+
+# Run the app
+shinyApp(ui = ui, server = server)
+```
+
+You see nothing when you run the Shiny app, right? Don't worry, everything is under control. Consider that this is the white canvas for a painting. Now we will start adding stuff on this white canvas.
+
+
+
+# App 1: File Uploader
+
+Let's create a page where we can upload our data. On UI, we will need
+
+1. A functional **file input button** (```?fileInput```)
+2. A **checkbox** to control whether we have headers or not in our data (```checkboxInput```)
+3. A **radio button** to choose which seperator our file have
+
+You will find more details in the commented code below:
+
+```{r eval=FALSE}
+library(shiny)
+
+# Define UI for data upload app
+ui <- fluidPage(
+  
+  # Page title
+  titlePanel("File Uplader"),
+  
+  # Sidebar layout with input and output definitions
+  sidebarLayout(
+    
+    # Sidebar panel for inputs
+    sidebarPanel(
+      
+      # Input: Select a file
+      fileInput(inputId = "file1", 
+                label = "Choose File",
+                multiple = FALSE),
+      
+      # Horizontal line
+      tags$hr(),
+      
+      # Input: Checkbox if file has header
+      checkboxInput(inputId = "header", 
+                    label = "Header", 
+                    value = TRUE),
+      
+      # Horizontal line
+      tags$hr(),
+      
+      # Input: Select separator
+      radioButtons(inputId = "sep", 
+                   label = "Separator",
+                   choices = c(Comma = ",",
+                               Tab = "\t"),
+                   selected = "\t")
+      
+    ),
+    
+    # Main panel for displaying outputs
+    mainPanel(
+      
+      # Output: Data file
+      tableOutput(outputId = "contents")
+      
+    )
+    
+  )
+)
+
+
+# Define server logic to read selected file
+server <- function(input, output, session) {
+  
+  # Reactive: Read data
+  df <- reactive({
+    
+    # Check "if" file is there. "if not" do not run the next lines
+    req(input$file1)
+    
+    # Read data
+    dat <- read.table(input$file1$datapath,
+                      header = input$header,
+                      sep = input$sep)
+    return(dat)
+    
+  })
+  
+  # Output: Full table  
+  output$contents <- renderTable({
+    
+    return(df())
+
+  })
+
+}
+
+# Create Shiny app
+shinyApp(ui, server)
+```
+
+**Exercises**
+
+We can do better than this. Here are some tasks for you:
+
+1. Can you also read ```csv``` files properly? Hint: ```checkboxInput```
+
+```{r, drop1=TRUE, results="markup", eval=FALSE}
+# UI
+# (...) 
+      # Input: Select separator
+      radioButtons(inputId = "sep", 
+                   label = "Separator",
+                   choices = c(Comma = ",",
+                               Semicolon = ";",
+                               Tab = "\t"),
+                   selected = ","),
+# (...)
+
+```
+
+2. Instead of visualizing the first 10 rows, can you print the whole table? Hint 1: Create a radiobutton on UI; Hint 2: use ```if``` statement on server function.
+
+```{r, drop2=TRUE, results="markup", eval=FALSE}
+# UI
+# (...) 
+      # Input: Select number of rows to display
+      radioButtons(inputId = "disp", 
+                   label = "Display",
+                   choices = c(Head = "head",
+                               All = "all"),
+                   selected = "head")
+# (...)
+
+# Server
+# (...)
+  # Output: Full table  
+  output$contents <- renderTable({
+    
+    if(input$disp == "head") {
+      return(head(df()))
+    }
+    else {
+      return(df())
+    }
+    
+  })
+
+# (...)
+```
+
+3. Can you print the summary stats for the whole table and make it optional? Hint: ```summary```
+
+```{r, drop3=TRUE, results="markup", eval=FALSE}
+# UI
+# (...) 
+# sidebarPanel(...
+      # Input: Checkbox for summary output
+      checkboxInput(inputId = "summary", 
+                    label = "Summary", 
+                    value = FALSE)
+# mainPanel(...     
+      # Output: Summary
+      verbatimTextOutput(outputId = "summary")
+
+# (...)
+
+# Server
+# (...)
+      # Output: Summary
+      output$summary <- renderPrint({
+      
+      # Return summary
+      if(input$summary) {
+        return(summary(df()))
+      }
+      # # Instead we could have basically used 'req()' function
+      # req(input$summary)
+      # return(summary(df()))
+      })
+# (...)
+```
+
+**Final result**
+
+Once you are done, your application should look like this. 
+
+```{r, drop4=TRUE, results="markup", eval=FALSE}
+library(shiny)
+
+# Define UI for data upload app
+ui <- fluidPage(
+  
+  # Page title
+  titlePanel("File Uplader"),
+  
+  # Sidebar layout with input and output definitions
+  sidebarLayout(
+    
+    # Sidebar panel for inputs
+    sidebarPanel(
+      
+      # Input: Select a file
+      fileInput(inputId = "file1", 
+                label = "Choose File",
+                multiple = FALSE),
+      
+      # Horizontal line
+      tags$hr(),
+      
+      # Input: Checkbox if file has header
+      checkboxInput(inputId = "header", 
+                    label = "Header", 
+                    value = TRUE),
+      
+      # Horizontal line
+      tags$hr(),
+      
+      # Input: Select separator
+      radioButtons(inputId = "sep", 
+                   label = "Separator",
+                   choices = c(Comma = ",",
+                               Semicolon = ";",
+                               Tab = "\t"),
+                   selected = "\t"),
+      
+      # Horizontal line
+      tags$hr(),
+      
+      # Input: Select number of rows to display
+      radioButtons(inputId = "disp", 
+                   label = "Display",
+                   choices = c(Head = "head",
+                               All = "all"),
+                   selected = "head"),
+      
+      # Horizontal line
+      tags$hr(),
+      
+      # Input: Checkbox for summary output
+      checkboxInput(inputId = "summary", 
+                    label = "Summary", 
+                    value = FALSE)
+      
+    ),
+    
+    # Main panel for displaying outputs
+    mainPanel(
+      
+      # Output: Summary
+      verbatimTextOutput(outputId = "summary"),
+      
+      # Horizontal line
+      tags$hr(),
+      
+      # Output: Data file
+      tableOutput(outputId = "contents")
+      
+    )
+    
+  )
+)
+
+
+# Define server logic to read selected file
+server <- function(input, output, session) {
+  
+  # Reactive: Read data
+  df <- reactive({
+    
+    # Check "if" file is there. "if not" do not run the next lines
+    req(input$file1)
+    
+    # Read data
+    dat <- read.table(input$file1$datapath,
+                      header = input$header,
+                      sep = input$sep)
+    return(dat)
+    
+  })
+  
+  # Output: Summary
+  output$summary <- renderPrint({
+    
+    # Return summary
+    if(input$summary) {
+      return(summary(df()))
+    }
+    # # Instead we could have basically used 'req()' function
+    # req(input$summary)
+    # return(summary(df()))
+    
+  })
+  
+  # Output: Full table  
+  output$contents <- renderTable({
+    
+    if(input$disp == "head") {
+      return(head(df()))
+    }
+    else {
+      return(df())
+    }
+    
+  })
+
+}
+
+# Create Shiny app
+shinyApp(ui, server)
+```
+
+# App 2: Data Plotter
+Now we are ready plot build an app for the data visualization. It will 
+
+# App 3: UPD
+If you survived so far, here is a trick for you to combine these 2 apps in a more elegant way:
+
+
+
+
