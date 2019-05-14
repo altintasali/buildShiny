@@ -112,7 +112,8 @@ Now, it is time to install the required R packages that we will be using in this
 ```{r eval=FALSE}
 install.packages("shiny")
 install.packages("ggplot2")
-
+install.packages("plotly")
+install.packages("ggplotify")
 ```
 
 
