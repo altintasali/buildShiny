@@ -90,7 +90,7 @@ knitr::knit_hooks$set(drop4=function(before, options, envir) {
 # Getting started
 
 ## Refreshing R knowledge
-In case that you are new to R, it is strongly recommended to get the basics. Here is a short course that will provide the basics in R. Please note that a basic understing of R is a strong requirement for builfding Shiny Apps.
+In case that you are new to R, it is strongly recommended to get the basics. Here is a short course that will provide the basics in R. Please note that a basic understanding of R is a strong requirement for building Shiny Apps.
 
 - [Basics in R](https://www.datacamp.com/courses/free-introduction-to-r?fbclid=IwAR03KSGIXdiMYyzEKeZp_9aU769WFdjSFpRfA_sA47K6aMc7rkb_M-lR1zQ)
 
@@ -197,7 +197,7 @@ Let's create a page where we can upload our data. On UI, we will need
 
 1. A functional **file input button** (```?fileInput```)
 2. A **checkbox** to control whether we have headers or not in our data (```checkboxInput```)
-3. A **radio button** to choose which seperator our file have
+3. A **radio button** to choose which separator our file have
 
 You will find more details in the commented code below:
 
@@ -303,7 +303,7 @@ We can do better than this. Here are some tasks for you:
 
 ```
 
-2. Instead of visualizing the first 10 rows, can you print the whole table? Hint 1: Create a radiobutton on UI; Hint 2: use ```if``` statement on server function.
+2. Instead of visualizing the first 10 rows, can you print the whole table? Hint 1: Create a radio-button on UI; Hint 2: use ```if``` statement on server function.
 
 ```{r, drop2=TRUE, results="markup", eval=FALSE}
 # UI
