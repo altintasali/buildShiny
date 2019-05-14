@@ -85,6 +85,36 @@ knitr::knit_hooks$set(drop4=function(before, options, envir) {
         paste("</div>", "</div>", sep = "\n")
     }
 })
+
+# App2 drop menus
+knitr::knit_hooks$set(drop_a2b1=function(before, options, envir) {
+    if (before) {
+        paste(
+            '<p>',
+'<button class="btn btn-primary collapsed" data-toggle="collapse" data-target="#a2b1">',
+'</button>',
+'</p>',
+'<div class="collapse" id="a2b1">',
+'<div class="card card-body">',  sep = "\n")
+    } else {
+        paste("</div>", "</div>", sep = "\n")
+    }
+})
+
+knitr::knit_hooks$set(drop_a2b2=function(before, options, envir) {
+    if (before) {
+        paste(
+            '<p>',
+'<button class="btn btn-primary collapsed" data-toggle="collapse" data-target="#a2b2">',
+'</button>',
+'</p>',
+'<div class="collapse" id="a2b2">',
+'<div class="card card-body">',  sep = "\n")
+    } else {
+        paste("</div>", "</div>", sep = "\n")
+    }
+})
+
 ```
 
 # Getting started
@@ -470,7 +500,7 @@ server <- function(input, output, session) {
     if(input$summary) {
       return(summary(df()))
     }
-    # # Instead we could have basically used 'req()' function
+    # # Alternatively, we could have basically used 'req()' function
     # req(input$summary)
     # return(summary(df()))
     
@@ -495,7 +525,194 @@ shinyApp(ui, server)
 ```
 
 # App 2: Data Plotter
-Now we are ready plot build an app for the data visualization. It will 
+Now we are ready plot build an app for the data visualization. App 1 was a simple example on how to have a functional Shiny App. In this app, we will have a similar approach to build the UI elements. Moreover, we will be using ```ggplotify``` function to generate interactive plots using ```plotly```.
+
+To keep it simple, we will be generating a scatter-plot. Let's start with the basics to plot:
+1. A functional file uploader (e.g. App 1)
+2. A dropdown menu to select columns to plot on each axis. (```inputSelect```) 
+
+Here is the skeleton to start with:
+```{r eval = FALSE}
+library(shiny)
+library(plotly)
+library(ggplotify)
+
+# Define UI for data upload app
+ui <- fluidPage(
+  
+  # Page title
+  titlePanel("Data Plotter"),
+  
+  # Sidebar layout with input and output definitions
+  sidebarLayout(
+    
+    # Sidebar panel for inputs
+    sidebarPanel(
+      
+      # Input: Select a file
+      fileInput(inputId = "file1", 
+                label = "Choose File",
+                multiple = FALSE),
+      
+      # Horizontal line
+      tags$hr(),
+      
+      # Input: Checkbox if file has header
+      checkboxInput(inputId = "header", 
+                    label = "Header", 
+                    value = TRUE),
+      
+      # Horizontal line
+      tags$hr(),
+      
+      # Input: Select separator
+      radioButtons(inputId = "sep", 
+                   label = "Separator",
+                   choices = c(Comma = ",",
+                               Semicolon = ";",
+                               Tab = "\t"),
+                   selected = "\t"),
+
+      # Horizontal line
+      tags$hr(),
+      
+      # Input: Plotting parameters
+      # "Empty inputs" - they will be updated after the data is uploaded
+      
+      # Input: X axis to plot
+      selectInput(inputId = "xcol", label = "X variable", choices = ""),
+      
+      # Input: Y axis to plot
+      selectInput(inputId = "ycol", label = "Y variable", choices = "", selected = "")
+
+    ),
+    
+    # Main panel for displaying outputs
+    mainPanel(
+      
+      # Plot data
+      plotlyOutput('myplot')
+      
+    )
+    
+  )
+)
+
+
+# Define server logic to read selected file
+server <- function(input, output, session) {
+  
+  # Reactive: Read data
+  df <- reactive({
+    
+    # Check "if" file is there. "if not" do not run the next lines
+    req(input$file1)
+    
+    # Read data
+    dat <- read.table(input$file1$datapath,
+                      header = input$header,
+                      sep = input$sep)
+    
+    # Update: changes on the 'plot parameters'
+    updateSelectInput(session, inputId = 'xcol', label = 'X Variable',
+                      choices = names(dat), selected = names(dat)[1])
+    updateSelectInput(session, inputId = 'ycol', label = 'Y Variable',
+                      choices = names(dat), selected = names(dat)[2])
+
+    return(dat)
+    
+  })
+
+  # Output: Plot
+  output$myplot <- renderPlotly({
+    
+    pbase <- ggplot(data = df(),
+                    aes_string(x = input$xcol,
+                               y = input$ycol)) + 
+      geom_point()
+    
+    p <- ggplotly(pbase)
+    
+    return(p)
+    
+  })
+  
+}
+
+# Create Shiny app
+shinyApp(ui, server)
+```
+
+**Exercises**:
+1. Can you make a dropdown menu to add colors for the dots? Hint: ```selectInput```,```updateSelectInput```
+
+```{r, drop_a2b1=TRUE, results="markup", eval=FALSE}
+# UI
+# (...)
+      # Input: Plotting parameters (...
+      # Input: Column to color dots
+      selectInput(inputId = "colorby", label = "Colour", choices = "", selected = "")
+# (...)
+
+# Server
+# (...)
+      # (...) inside reactive({})
+      # Update: changes on the 'plot parameters' 
+      updateSelectInput(session, inputId = 'colorby', label = 'Colour',
+                        choices = names(dat), selected = names(dat)[5])
+      # (...)
+      # Output: Plot
+      pbase <- ggplot(data = df(),
+                      aes_string(x = input$xcol,
+                                 y = input$ycol,
+                                 colour = input$colorby)) + 
+        geom_point()
+      #
+# (...)
+
+```
+
+2. When you have more than two discrete variables, viewing data in multiple panels is very useful for visual inspection of data. Can we add a panel option to our plot? Hint: ```facet_grid```, ```selectInput```,```updateSelectInput```, ```if```
+
+```{r, drop_a2b2=TRUE, results="markup", eval=FALSE}
+# UI
+# (...)
+      # Input: Plotting parameters (...
+      # Input: Boolean to facet
+      radioButtons(inputId = "facet", label = "Facet", 
+                   choices = c(No = FALSE, 
+                               Yes = TRUE), 
+                   selected = FALSE),
+      
+      # Input: Column to create facets
+      selectInput(inputId = "groupName", label = "Facet Group", choices = "", selected = "")
+# (...)
+
+# Server
+# (...)
+      # (...) inside reactive({})
+      # Update: changes on the 'plot parameters' 
+      updateSelectInput(session, inputId = 'groupName', label = 'Facet Group',
+                        choices = names(dat), selected = names(dat)[5])
+      # (...)
+      # Output: Plot
+      pbase <- ggplot(data = df(),
+                      aes_string(x = input$xcol,
+                                 y = input$ycol,
+                                 colour = input$colorby)) + 
+        geom_point()
+      
+      if(input$facet){
+        p <- pbase + facet_grid(input$groupName)
+        p <- ggplotly(p)
+      }else{
+        p <- ggplotly(pbase)
+      }
+      
+# (...)
+```
+
+3. 
 
 # App 3: UPD
 If you survived so far, here is a trick for you to combine these 2 apps in a more elegant way:
