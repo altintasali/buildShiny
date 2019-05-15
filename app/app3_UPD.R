@@ -1,19 +1,16 @@
-library(shiny)
-library(ggplot2)
-library(plotly)
-library(ggplotify)
-
-#library(magrittr)
-#library(dplyr)
-
-# Define UI for data upload app
+# Define UI
 ui <- fluidPage(
-  # Page title
-  titlePanel("Read and plot"),
+  titlePanel("UPD"),
   
+  # Tab panel set
   tabsetPanel(
-    tabPanel("Upload File",
-             titlePanel("Uploading Files"),
+    
+    # Tab Panel for Tab 1 
+    tabPanel("File Uploder",
+             
+             # Panel title
+             titlePanel("Upload Options"),
+             
              # Sidebar layout with input and output definitions
              sidebarLayout(
                
@@ -57,15 +54,13 @@ ui <- fluidPage(
                  # Horizontal line
                  tags$hr(),
                  
-                 # Input: Checkbox if file has header
+                 # Input: Checkbox for summary output
                  checkboxInput(inputId = "summary", 
                                label = "Summary", 
                                value = FALSE)
                  
                ),
                
-               
-               # Sidebar layout with input and output definitions
                # Main panel for displaying outputs
                mainPanel(
                  
@@ -77,61 +72,109 @@ ui <- fluidPage(
                  
                  # Output: Data file
                  tableOutput(outputId = "contents")
+                 
                )
+               
              )
-             
     ),
     
-    tabPanel("Generate Plot",
-             pageWithSidebar(
-               headerPanel('Plot options'),
+    # Tab Panel for Tab 2
+    tabPanel("Data Plotter",
+             
+             # Panel title
+             titlePanel("Plot Options"),
+             
+             # Sidebar layout with input and output definitions
+             sidebarLayout(
                
+               # Sidebar panel for inputs
                sidebarPanel(
+                 
+                 # Input: Plotting parameters
                  # "Empty inputs" - they will be updated after the data is uploaded
-                 selectInput('xcol', 'X variable', ""),
-                 selectInput('ycol', 'Y variable', "", selected = ""),
-                 selectInput('colorby', 'Colour', "", selected = ""),
-                 radioButtons('facet', 'Facet',
-                              c(No=FALSE,
-                                Yes=TRUE),
-                              FALSE),
-                 selectInput('group', 'Facet Group', "", selected = ""),
+                 
+                 # Input: X axis to plot
+                 selectInput(inputId = "xcol", label = "X variable", choices = ""),
+                 
+                 # Input: Y axis to plot
+                 selectInput(inputId = "ycol", label = "Y variable", choices = "", selected = ""),
+                 
+                 # Input: Column to color dots
+                 selectInput(inputId = "colorby", label = "Colour", choices = "", selected = ""),
+                 
+                 # Horizontal line
+                 tags$hr(),
+                 
+                 # Input: Boolean to facet
+                 radioButtons(inputId = "facet", label = "Facet", 
+                              choices = c(No = FALSE, 
+                                          Yes = TRUE), 
+                              selected = FALSE),
+                 
+                 # Input: Column to create facets
+                 selectInput(inputId = "groupName", label = "Facet Group", choices = "", selected = ""),
+                 
+                 # Input: Subset data by group
+                 checkboxGroupInput(inputId = "groupElements", label = "Subset", choices = "", selected = ""),
+                 
+                 # Horizontal line
+                 tags$hr(),
+                 
+                 # Input: Plot title
                  textInput(inputId = "main", label = "Plot Title", value = "My plot"),
+                 
+                 # Input: X axis name
                  textInput(inputId = "xname", label = "X-axis title", value = ""),
+                 
+                 # Input: Y axis name
                  textInput(inputId = "yname", label = "Y-axis title", value = ""),
-                 checkboxGroupInput(inputId = "subset", label = "Subset", choices = "", selected = ""),
+                 
+                 # Horizontal line
+                 tags$hr(),
+                 
+                 # Input: Dot size
                  sliderInput(inputId = "dotsize", label = "Dot size",
                              value = 1, min = 0.5, max = 3, step = 0.5)
+                 
                ),
                
+               # Main panel for displaying outputs
                mainPanel(
+                 
+                 # Plot data
                  plotlyOutput('myplot')
+                 
                )
+               
              )
+             
     )
-  )  
+    
+  )
+  
 )
 
-
-# Define server logic to read selected file
+# Define server logic
 server <- function(input, output, session) {
-  
-  # Read data
+  # Reactive: Read data
   df <- reactive({
     
+    # Check "if" file is there. "if not" do not run the next lines
     req(input$file1)
     
+    # Read data
     dat <- read.table(input$file1$datapath,
                       header = input$header,
                       sep = input$sep)
     
+    # Update: changes on the 'plot parameters'
     updateSelectInput(session, inputId = 'xcol', label = 'X Variable',
                       choices = names(dat), selected = names(dat)[1])
     updateSelectInput(session, inputId = 'ycol', label = 'Y Variable',
                       choices = names(dat), selected = names(dat)[2])
     updateSelectInput(session, inputId = 'colorby', label = 'Colour',
                       choices = names(dat), selected = names(dat)[5])
-    updateSelectInput(session, inputId = 'group', label = 'Facet Group',
+    updateSelectInput(session, inputId = 'groupName', label = 'Facet Group',
                       choices = names(dat), selected = names(dat)[5])
     
     return(dat)
@@ -145,6 +188,9 @@ server <- function(input, output, session) {
     if(input$summary) {
       return(summary(df()))
     }
+    # # Instead we could have basically used 'req()' function
+    # req(input$summary)
+    # return(summary(df()))
     
   })
   
@@ -160,40 +206,41 @@ server <- function(input, output, session) {
     
   })
   
-  # # Observe: changes on the 'plot parameters'
-  # observe({
-  #   updateSelectInput(session, inputId = 'xcol', label = 'X Variable',
-  #                     choices = names(df()), selected = names(df())[1])
-  #   updateSelectInput(session, inputId = 'ycol', label = 'Y Variable',
-  #                     choices = names(df()), selected = names(df())[2])
-  #   updateSelectInput(session, inputId = 'colorby', label = 'Colour',
-  #                     choices = names(df()), selected = names(df())[5])
-  #   updateSelectInput(session, inputId = 'group', label = 'Facet Group',
-  #                     choices = names(df), selected = names(df())[5])
-  # })
-
-  # Observe: after input is updated, observe again
+  # Observe: changes on the 'plot parameters'
   observe({
+    
+    # Observe: X axis title
     updateTextInput(session, inputId = "xname", label = "X-axis title",
                     value = input$xcol)
+    
+    # Observe: Y axis title
     updateTextInput(session, inputId = "yname", label = "Y-axis title",
                     value = input$ycol)
     
-    if(class(df()[[input$group]]) == "numeric"){
+    # Observe: Subset elements in the column to facet
+    if(class(df()[[input$groupName]]) == "numeric"){
       subgroup <- character(0)
     }else{
-      subgroup <- sort(unique(df()[[input$group]]))
+      subgroup <- sort(unique(df()[[input$groupName]]))
     }
-    updateCheckboxGroupInput(session, inputId = "subset", label = paste("Subset by:", input$group),
+    updateCheckboxGroupInput(session, inputId = "groupElements",
+                             label = paste("Subset by:", input$groupName),
                              choices = subgroup, selected = subgroup)
     
   })
   
-  # Reactive: data for plotting (for subsetting)
+  # Reactive: Subset the data if needed before plotting
   dfsub <- reactive({
+    
     # subset df
-    dfsub <- subset(df(), get(input$group) %in% input$subset)
+    if(class(df()[[input$groupName]]) == "numeric"){
+      dfsub <- df()
+    }else{
+      dfsub <- subset(df(), get(input$groupName) %in% input$groupElements) # Alternatively, we can only use this lione to subset data
+    }
+    
     return(dfsub)
+    
   })
   
   # Output: Plot
@@ -209,7 +256,7 @@ server <- function(input, output, session) {
       ylab(input$yname)
     
     if(input$facet){
-      p <- pbase + facet_grid(input$group)
+      p <- pbase + facet_grid(input$groupName)
       p <- ggplotly(p)
     }else{
       p <- ggplotly(pbase)
@@ -218,7 +265,8 @@ server <- function(input, output, session) {
     return(p)
     
   })
+  
 }
 
-# Create Shiny app
-shinyApp(ui, server)
+# Run the app
+shinyApp(ui = ui, server = server)

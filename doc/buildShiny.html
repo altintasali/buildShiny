@@ -9,7 +9,6 @@
 <meta name="generator" content="pandoc" />
 
 
-<meta name="author" content="Ali Altıntaş" />
 
 <meta name="date" content="2019-05-15" />
 
@@ -222,6 +221,9 @@ div.tocify {
 
 <h1 class="title toc-ignore">Building your first Shiny App</h1>
 <h4 class="author"><em>Ali Altıntaş</em></h4>
+<address class="author_afil">
+Postdoc, Bioinformatician<br><a class="author_email" href="mailto:#"><a href="mailto:altintas@sund.ku.dk">altintas@sund.ku.dk</a></a>
+</address>
 <h4 class="date"><em>May 15, 2019</em></h4>
 
 </div>
@@ -328,7 +330,37 @@ server &lt;- function(input, output) {
 
 # Run the app
 shinyApp(ui = ui, server = server)</code></pre>
-<p>You see nothing when you run the Shiny app, right? Don’t worry, everything is under control. Consider that this is the white canvas for a painting. Now we will start adding stuff on this white canvas.</p>
+<p>You see nothing when you run the Shiny app, right? Don’t worry, everything is under control. Consider that this is the white canvas for a painting. Now we will start adding stuff on this white canvas. Let’s define the structure a bit detailed.</p>
+<pre class="r"><code>library(shiny)
+
+# Define UI
+ui &lt;- fluidPage(
+  titlePanel(&quot;My app&quot;),
+  
+  # Sidebar layout with input and output definitions
+  sidebarLayout(
+    
+    # Sidebar panel for inputs
+    sidebarPanel(
+      
+    ),
+    
+    # Main panel for displaying outputs
+    mainPanel(
+      
+    )
+    
+  )
+  
+)
+
+# Define server logic
+server &lt;- function(input, output) {
+  
+}
+
+# Run the app
+shinyApp(ui = ui, server = server)</code></pre>
 </div>
 <div id="app-1-file-uploader" class="section level1">
 <h1><span class="header-section-number">4</span> App 1: File Uploader</h1>
@@ -418,16 +450,18 @@ server &lt;- function(input, output, session) {
 
 # Create Shiny app
 shinyApp(ui, server)</code></pre>
-<p><strong>Exercises</strong></p>
+<p><strong>Exercises:</strong></p>
 <p>We can do better than this. Here are some tasks for you:</p>
 <ol style="list-style-type: decimal">
-<li>Can you also read <code>csv</code> files properly? Hint: <code>checkboxInput</code></li>
+<li>Can you also read <code>csv</code> files properly?</li>
 </ol>
+<p>Hint 1: You need to be able to select which delimiter to use in the <strong>UI</strong></p>
+<p>Hint 2: You should use the chosen delimiter when reading the file in the <strong>Server</strong> function. Since there are only a few common delimiters <code>checkboxInput</code> might be a good choice in the <strong>UI</strong>.</p>
 <p>
-<button class="btn btn-primary collapsed" data-toggle="collapse" data-target="#ce1">
+<button class="btn btn-primary collapsed" data-toggle="collapse" data-target="#a1b1">
 </button>
 </p>
-<div id="ce1" class="collapse">
+<div id="a1b1" class="collapse">
 <div class="card card-body">
 <pre class="r"><code># UI
 # (...) 
@@ -438,17 +472,27 @@ shinyApp(ui, server)</code></pre>
                                Semicolon = &quot;;&quot;,
                                Tab = &quot;\t&quot;),
                    selected = &quot;,&quot;),
+# (...)
+
+# Server
+# (...)
+     dat &lt;- read.table(input$file1$datapath,
+                       header = input$header,
+                       sep = input$sep) # Can you tell why &quot;input$sep&quot; is used? Can you change it to be &quot;input$seperator&quot;?
 # (...)</code></pre>
 </div>
 </div>
 <ol start="2" style="list-style-type: decimal">
-<li>Instead of visualizing the first 10 rows, can you print the whole table? Hint 1: Create a radio-button on UI; Hint 2: use <code>if</code> statement on server function.</li>
+<li>Instead of visualizing the first 10 rows, can you print the whole table?</li>
 </ol>
+<p>Hint 1: Create a new radio-button in the UI.</p>
+<p>Hint 2: use an <code>if</code> statement in the server.</p>
+<p>Hint 3: make sure you read up on what gets stored in <code>input</code> when you select something with a radio button.</p>
 <p>
-<button class="btn btn-primary collapsed" data-toggle="collapse" data-target="#ce2">
+<button class="btn btn-primary collapsed" data-toggle="collapse" data-target="#a1b2">
 </button>
 </p>
-<div id="ce2" class="collapse">
+<div id="a1b2" class="collapse">
 <div class="card card-body">
 <pre class="r"><code># UI
 # (...) 
@@ -478,13 +522,16 @@ shinyApp(ui, server)</code></pre>
 </div>
 </div>
 <ol start="3" style="list-style-type: decimal">
-<li>Can you print the summary stats for the whole table and make it optional? Hint: <code>summary</code></li>
+<li>Can you print the summary stats for the whole table and make it optional? To try a new function use <code>verbatimTextOutput</code> instead of <code>tableOutput</code>. Or try both and get a feel for the difference.</li>
 </ol>
+<p>Hint 1: The UI needs to accept a new input and print a new output.</p>
+<p>Hint 2: The server needs to render a new output, take a look at <code>renderPrint</code> and <code>summary</code></p>
+<p>Hint 3: You can prevent the app from crashing when it tries to render nothing. An <code>if</code> statement can be used, or like with file input you can use <code>req</code>. Try both and see if you can tell why <code>req</code> tends to produce simpler code.</p>
 <p>
-<button class="btn btn-primary collapsed" data-toggle="collapse" data-target="#ce3">
+<button class="btn btn-primary collapsed" data-toggle="collapse" data-target="#a1b3">
 </button>
 </p>
-<div id="ce3" class="collapse">
+<div id="a1b3" class="collapse">
 <div class="card card-body">
 <pre class="r"><code># UI
 # (...) 
@@ -515,13 +562,13 @@ shinyApp(ui, server)</code></pre>
 # (...)</code></pre>
 </div>
 </div>
-<p><strong>Final result</strong></p>
+<p><strong>Final Result:</strong></p>
 <p>Once you are done, your application should look like this.</p>
 <p>
-<button class="btn btn-primary collapsed" data-toggle="collapse" data-target="#ce4">
+<button class="btn btn-primary collapsed" data-toggle="collapse" data-target="#a1b4">
 </button>
 </p>
-<div id="ce4" class="collapse">
+<div id="a1b4" class="collapse">
 <div class="card card-body">
 <pre class="r"><code>library(shiny)
 
@@ -651,7 +698,11 @@ shinyApp(ui, server)</code></pre>
 <div id="app-2-data-plotter" class="section level1">
 <h1><span class="header-section-number">5</span> App 2: Data Plotter</h1>
 <p>Now we are ready plot build an app for the data visualization. App 1 was a simple example on how to have a functional Shiny App. In this app, we will have a similar approach to build the UI elements. Moreover, we will be using <code>ggplotify</code> function to generate interactive plots using <code>plotly</code>.</p>
-<p>To keep it simple, we will be generating a scatter-plot. Let’s start with the basics to plot: 1. A functional file uploader (e.g. App 1) 2. A dropdown menu to select columns to plot on each axis. (<code>inputSelect</code>)</p>
+<p>To keep it simple, we will be generating a scatter-plot. Let’s start with the basics to plot:</p>
+<ol style="list-style-type: decimal">
+<li>A functional file uploader (e.g. App 1)</li>
+<li>A dropdown menu to select columns to plot on each axis. (<code>inputSelect</code>)</li>
+</ol>
 <p>Here is the skeleton to start with:</p>
 <pre class="r"><code>library(shiny)
 library(plotly)
@@ -761,7 +812,12 @@ server &lt;- function(input, output, session) {
 
 # Create Shiny app
 shinyApp(ui, server)</code></pre>
-<p><strong>Exercises</strong>: 1. Can you make a dropdown menu to add colors for the dots? Hint: <code>selectInput</code>,<code>updateSelectInput</code></p>
+<p><strong>Exercises:</strong></p>
+<ol style="list-style-type: decimal">
+<li>Can you make a dropdown menu to add colors for the dots?</li>
+</ol>
+<p>Hint 1: Use <code>selectInput</code> on the <strong>UI</strong> to have dropdown menu.</p>
+<p>Hint 2: Use <code>updateSelectInput</code>on the <strong>Server</strong> function to update your input when you change the column to colour the dots.</p>
 <p>
 <button class="btn btn-primary collapsed" data-toggle="collapse" data-target="#a2b1">
 </button>
@@ -793,8 +849,13 @@ shinyApp(ui, server)</code></pre>
 </div>
 </div>
 <ol start="2" style="list-style-type: decimal">
-<li>When you have more than two discrete variables, viewing data in multiple panels is very useful for visual inspection of data. Can we add a panel option to our plot? Hint: <code>facet_grid</code>, <code>selectInput</code>,<code>updateSelectInput</code></li>
+<li>When you have more than two discrete variables, viewing data in multiple panels is very useful for visual inspection of data. Can we add a panel option to our plot?</li>
 </ol>
+<p>Hint 1: Add radio button (<code>radioButtons</code>) with boolean options whether panels should be created or not</p>
+<p>Hint 2: Create panels using <code>facet_grid</code></p>
+<p>Hint 3: Use <code>selectInput</code> to pick which column to use for panel creation</p>
+<p>Hint 4: When you change column to create panels, you should update your input with<code>updateSelectInput</code></p>
+<p>Hint 5: Use <code>if</code> statement for final <code>ggplot2</code> object to include/exclude panels.</p>
 <p>
 <button class="btn btn-primary collapsed" data-toggle="collapse" data-target="#a2b2">
 </button>
@@ -804,6 +865,7 @@ shinyApp(ui, server)</code></pre>
 <pre class="r"><code># UI
 # (...)
       # Input: Plotting parameters (...
+      # Input: Boolean to facet
       radioButtons(inputId = &quot;facet&quot;, label = &quot;Facet&quot;, 
                    choices = c(No = FALSE, 
                                Yes = TRUE), 
@@ -837,10 +899,707 @@ shinyApp(ui, server)</code></pre>
 # (...)</code></pre>
 </div>
 </div>
+<ol start="3" style="list-style-type: decimal">
+<li>It is always a good idea to have the freedom to manually edit your axis labels and plot title. Can we build text input boxes for “Plot Title”, “X-axis label” and “Y-axis label”? It should automatically detect the column name we are using to plot on each axis.</li>
+</ol>
+<p>Hint 1: use <code>textInput</code> for <strong>UI</strong></p>
+<p>Hint 2: use <code>observe</code> on <strong>Server</strong> function. Inside the <code>observe</code> function, you can use <code>updateTextInput</code></p>
+<p>Hint3 : use <code>ggtitle</code>, <code>xlab</code> and `<code>ylab</code> for “Plot Title”, “X-axis label” and “Y-axis label”, respectively.</p>
+<p>
+<button class="btn btn-primary collapsed" data-toggle="collapse" data-target="#a2b3">
+</button>
+</p>
+<div id="a2b3" class="collapse">
+<div class="card card-body">
+<pre class="r"><code># UI
+# (...)
+      # Input: Plotting parameters (...
+      # Input: Plot title
+      textInput(inputId = &quot;main&quot;, label = &quot;Plot Title&quot;, value = &quot;My plot&quot;),
+      
+      # Input: X axis name
+      textInput(inputId = &quot;xname&quot;, label = &quot;X-axis title&quot;, value = &quot;&quot;),
+      
+      # Input: Y axis name
+      textInput(inputId = &quot;yname&quot;, label = &quot;Y-axis title&quot;, value = &quot;&quot;),
+# (...)
+
+# Server
+# (...)
+  # After creating reactive({}) object (...)
+  # Observe: changes on the 'plot parameters'
+  observe({
+    
+    # Observe: X axis title
+    updateTextInput(session, inputId = &quot;xname&quot;, label = &quot;X-axis title&quot;,
+                    value = input$xcol)
+    
+    # Observe: Y axis title
+    updateTextInput(session, inputId = &quot;yname&quot;, label = &quot;Y-axis title&quot;,
+                    value = input$ycol)
+    
+  }) 
+
+  # Output: Plot
+  output$myplot &lt;- renderPlotly({
+    
+    pbase &lt;- ggplot(data = df(),
+                    aes_string(x = input$xcol,
+                               y = input$ycol,
+                               colour = input$colorby)) + 
+      geom_point() +
+      ggtitle(input$main) +
+      xlab(input$xname) + 
+      ylab(input$yname)
+    
+    if(input$facet){
+      p &lt;- pbase + facet_grid(input$groupName)
+      p &lt;- ggplotly(p)
+    }else{
+      p &lt;- ggplotly(pbase)
+    }
+    
+    return(p)
+    
+  })
+      
+# (...)</code></pre>
+</div>
+</div>
+<ol start="4" style="list-style-type: decimal">
+<li>Let’s add more aesthetics to our plot. Can we create a <em>slider</em> where we select the size for the data points. The slider values should be between 0.5 and 3.0 with 0.5 increments and default to 1.0.</li>
+</ol>
+<p>Hint 1: use <code>sliderInput</code> for <strong>UI</strong></p>
+<p>Hint 2: use <em>size</em> parameter inside <code>geom_point</code> function on the <strong>Server</strong> function</p>
+<p>
+<button class="btn btn-primary collapsed" data-toggle="collapse" data-target="#a2b4">
+</button>
+</p>
+<div id="a2b4" class="collapse">
+<div class="card card-body">
+<pre class="r"><code># UI
+# (...)
+      # Input: Plotting parameters (...
+      # Input: Dot size
+      sliderInput(inputId = &quot;dotsize&quot;, label = &quot;Dot size&quot;,
+                  value = 1, min = 0.5, max = 3, step = 0.5)
+# (...)
+
+# Server
+# (...)
+  # Output: Plot (...)
+      geom_point(size=input$dotsize)
+
+# (...)</code></pre>
+</div>
+</div>
+<ol start="5" style="list-style-type: decimal">
+<li>Can subset the data using the discrete variables. Let’s say that we would like to subset the <em>Species</em> using <em>setosa</em> only. Can we build <code>checkboxGroupInput</code> for this? After that, you can easily click on <em>setosa</em> and data will be subsetted accordingly.</li>
+</ol>
+<p>Hint 1: use <code>checkboxGroupInput</code> for <strong>UI</strong></p>
+<p>Hint 2: use <code>observe</code> on <strong>Server</strong> function. Inside the <code>observe</code> function, you can use <code>updateCheckboxGroupInput</code></p>
+<p>Hint 3: To make sure only subsetting with with dicrete variables, use <code>if(class(df()[[input$groupName]]) == &quot;numeric&quot;)</code> inside <code>observe</code></p>
+<p>Hint 4: Create a new <code>reactive</code> with subsetted data using <code>subset</code></p>
+<p>Hint 5: Plot only the subsetted data <code>reactive</code></p>
+<p>
+<button class="btn btn-primary collapsed" data-toggle="collapse" data-target="#a2b5">
+</button>
+</p>
+<div id="a2b5" class="collapse">
+<div class="card card-body">
+<pre class="r"><code># UI
+# (...)
+      # Input: Plotting parameters (...
+      # Input: Subset data by group
+      checkboxGroupInput(inputId = &quot;groupElements&quot;, label = &quot;Subset&quot;, choices = &quot;&quot;, selected = &quot;&quot;)
+
+# (...)
+
+# Server
+# (...)
+
+    # Inside observe{()} (...)
+    # Observe: Subset elements in the column to facet
+    if(class(df()[[input$groupName]]) == &quot;numeric&quot;){
+      subgroup &lt;- character(0)
+    }else{
+      subgroup &lt;- sort(unique(df()[[input$groupName]]))
+    }
+    updateCheckboxGroupInput(session, inputId = &quot;groupElements&quot;,
+                             label = paste(&quot;Subset by:&quot;, input$groupName),
+                             choices = subgroup, selected = subgroup)
+
+    # (...)
+    # Reactive: Subset the data if needed before plotting
+    dfsub &lt;- reactive({
+     
+       # subset df
+      if(class(df()[[input$groupName]]) == &quot;numeric&quot;){
+        dfsub &lt;- df()
+      }else{
+        dfsub &lt;- subset(df(), get(input$groupName) %in% input$groupElements) # Alternatively, we can only use this line to subset data
+      }
+      
+      return(dfsub)
+      
+    })
+    
+    # Inside plot
+    # (...)
+       pbase &lt;- ggplot(data = dfsub(),
+
+# (...)</code></pre>
+</div>
+</div>
+<p><strong>Final Result:</strong></p>
+<p>If you did everything right, you app should look similar to this:</p>
+<p>
+<button class="btn btn-primary collapsed" data-toggle="collapse" data-target="#a2b6">
+</button>
+</p>
+<div id="a2b6" class="collapse">
+<div class="card card-body">
+<pre class="r"><code>library(shiny)
+library(plotly)
+library(ggplotify)
+
+# Define UI for data upload app
+ui &lt;- fluidPage(
+  
+  # Page title
+  titlePanel(&quot;Data Plotter&quot;),
+  
+  # Sidebar layout with input and output definitions
+  sidebarLayout(
+    
+    # Sidebar panel for inputs
+    sidebarPanel(
+      
+      # Input: Select a file
+      fileInput(inputId = &quot;file1&quot;, 
+                label = &quot;Choose File&quot;,
+                multiple = FALSE),
+      
+      # Horizontal line
+      tags$hr(),
+      
+      # Input: Checkbox if file has header
+      checkboxInput(inputId = &quot;header&quot;, 
+                    label = &quot;Header&quot;, 
+                    value = TRUE),
+      
+      # Horizontal line
+      tags$hr(),
+      
+      # Input: Select separator
+      radioButtons(inputId = &quot;sep&quot;, 
+                   label = &quot;Separator&quot;,
+                   choices = c(Comma = &quot;,&quot;,
+                               Semicolon = &quot;;&quot;,
+                               Tab = &quot;\t&quot;),
+                   selected = &quot;\t&quot;),
+
+      # Horizontal line
+      tags$hr(),
+      
+      # Input: Plotting parameters
+      # &quot;Empty inputs&quot; - they will be updated after the data is uploaded
+      
+      # Input: X axis to plot
+      selectInput(inputId = &quot;xcol&quot;, label = &quot;X variable&quot;, choices = &quot;&quot;),
+      
+      # Input: Y axis to plot
+      selectInput(inputId = &quot;ycol&quot;, label = &quot;Y variable&quot;, choices = &quot;&quot;, selected = &quot;&quot;),
+      
+      # Input: Column to color dots
+      selectInput(inputId = &quot;colorby&quot;, label = &quot;Colour&quot;, choices = &quot;&quot;, selected = &quot;&quot;),
+      
+      # Horizontal line
+      tags$hr(),
+      
+      # Input: Boolean to facet
+      radioButtons(inputId = &quot;facet&quot;, label = &quot;Facet&quot;, 
+                   choices = c(No = FALSE, 
+                               Yes = TRUE), 
+                   selected = FALSE),
+      
+      # Input: Column to create facets
+      selectInput(inputId = &quot;groupName&quot;, label = &quot;Facet Group&quot;, choices = &quot;&quot;, selected = &quot;&quot;),
+      
+      # Input: Subset data by group
+      checkboxGroupInput(inputId = &quot;groupElements&quot;, label = &quot;Subset&quot;, choices = &quot;&quot;, selected = &quot;&quot;),
+      
+      # Horizontal line
+      tags$hr(),
+      
+      # Input: Plot title
+      textInput(inputId = &quot;main&quot;, label = &quot;Plot Title&quot;, value = &quot;My plot&quot;),
+      
+      # Input: X axis name
+      textInput(inputId = &quot;xname&quot;, label = &quot;X-axis title&quot;, value = &quot;&quot;),
+      
+      # Input: Y axis name
+      textInput(inputId = &quot;yname&quot;, label = &quot;Y-axis title&quot;, value = &quot;&quot;),
+      
+      # Horizontal line
+      tags$hr(),
+      
+      # Input: Dot size
+      sliderInput(inputId = &quot;dotsize&quot;, label = &quot;Dot size&quot;,
+                  value = 1, min = 0.5, max = 3, step = 0.5)
+      
+    ),
+    
+    # Main panel for displaying outputs
+    mainPanel(
+      
+      # Plot data
+      plotlyOutput('myplot')
+      
+    )
+    
+  )
+)
+
+
+# Define server logic to read selected file
+server &lt;- function(input, output, session) {
+  
+  # Reactive: Read data
+  df &lt;- reactive({
+    
+    # Check &quot;if&quot; file is there. &quot;if not&quot; do not run the next lines
+    req(input$file1)
+    
+    # Read data
+    dat &lt;- read.table(input$file1$datapath,
+                      header = input$header,
+                      sep = input$sep)
+    
+    # Update: changes on the 'plot parameters'
+    updateSelectInput(session, inputId = 'xcol', label = 'X Variable',
+                      choices = names(dat), selected = names(dat)[1])
+    updateSelectInput(session, inputId = 'ycol', label = 'Y Variable',
+                      choices = names(dat), selected = names(dat)[2])
+    updateSelectInput(session, inputId = 'colorby', label = 'Colour',
+                      choices = names(dat), selected = names(dat)[5])
+    updateSelectInput(session, inputId = 'groupName', label = 'Facet Group',
+                      choices = names(dat), selected = names(dat)[5])
+
+    return(dat)
+    
+  })
+
+  # Observe: changes on the 'plot parameters'
+  observe({
+    
+    # Observe: X axis title
+    updateTextInput(session, inputId = &quot;xname&quot;, label = &quot;X-axis title&quot;,
+                    value = input$xcol)
+    
+    # Observe: Y axis title
+    updateTextInput(session, inputId = &quot;yname&quot;, label = &quot;Y-axis title&quot;,
+                    value = input$ycol)
+
+    # Observe: Subset elements in the column to facet
+    if(class(df()[[input$groupName]]) == &quot;numeric&quot;){
+      subgroup &lt;- character(0)
+    }else{
+      subgroup &lt;- sort(unique(df()[[input$groupName]]))
+    }
+    updateCheckboxGroupInput(session, inputId = &quot;groupElements&quot;,
+                             label = paste(&quot;Subset by:&quot;, input$groupName),
+                             choices = subgroup, selected = subgroup)
+    
+  })
+  
+  # Reactive: Subset the data if needed before plotting
+  dfsub &lt;- reactive({
+    
+    # subset df
+    if(class(df()[[input$groupName]]) == &quot;numeric&quot;){
+      dfsub &lt;- df()
+    }else{
+      dfsub &lt;- subset(df(), get(input$groupName) %in% input$groupElements) # Alternatively, we can only use this line to subset data
+    }
+    
+    return(dfsub)
+    
+  })
+  
+  # Output: Plot
+  output$myplot &lt;- renderPlotly({
+    
+    pbase &lt;- ggplot(data = dfsub(),
+                    aes_string(x = input$xcol,
+                               y = input$ycol,
+                               colour = input$colorby)) + 
+      geom_point(size=input$dotsize) +
+      ggtitle(input$main) +
+      xlab(input$xname) + 
+      ylab(input$yname)
+    
+    if(input$facet){
+      p &lt;- pbase + facet_grid(input$groupName)
+      p &lt;- ggplotly(p)
+    }else{
+      p &lt;- ggplotly(pbase)
+    }
+    
+    return(p)
+    
+  })
+  
+}
+
+# Create Shiny app
+shinyApp(ui, server)</code></pre>
+</div>
+</div>
 </div>
 <div id="app-3-upd" class="section level1">
 <h1><span class="header-section-number">6</span> App 3: UPD</h1>
-<p>If you survived so far, here is a trick for you to combine these 2 apps in a more elegant way:</p>
+<p>If you survived so far, here is a trick for you to combine these 2 apps in a more elegant way. Let’s use this skeleton:</p>
+<pre class="r"><code># Define UI
+ui &lt;- fluidPage(
+  titlePanel(&quot;My app&quot;),
+  
+  # Tab panel set
+  tabsetPanel(
+    
+    # Tab Panel for Tab 1 
+    tabPanel(&quot;Tab 1&quot;,
+             
+             # Title for panel
+             titlePanel(&quot;Options for Tab 1&quot;),
+             
+             # Sidebar layout with input and output definitions
+             sidebarLayout(
+               
+               # Sidebar panel for inputs
+               sidebarPanel(),
+               
+               # Main panel for displaying outputs
+               mainPanel()
+               
+             )
+    ),
+    
+    # Tab Panel for Tab 2 
+    tabPanel(&quot;Tab 2&quot;,
+             
+             titlePanel(&quot;Options for Tab 2&quot;),
+             
+             # Sidebar layout with input and output definitions
+             sidebarLayout(
+               
+               # Sidebar panel for inputs
+               sidebarPanel(),
+               
+               # Main panel for displaying outputs
+               mainPanel()
+               
+             )
+             
+    )
+    
+  )
+  
+)
+
+# Define server logic
+server &lt;- function(input, output, session) {
+ 
+}
+
+# Run the app
+shinyApp(ui = ui, server = server)</code></pre>
+<p><strong>Optional Exercise:</strong> Can you combine the first 2 apps into 1 using <code>tabsetPanel</code></p>
+<p>
+<button class="btn btn-primary collapsed" data-toggle="collapse" data-target="#a3b1">
+</button>
+</p>
+<div id="a3b1" class="collapse">
+<div class="card card-body">
+<pre class="r"><code># Define UI
+ui &lt;- fluidPage(
+  titlePanel(&quot;UPD&quot;),
+  
+  tabsetPanel(
+    
+    tabPanel(&quot;File Uploder&quot;,
+             
+             titlePanel(&quot;Upload Options&quot;),
+             
+             # Sidebar layout with input and output definitions
+             sidebarLayout(
+               
+               # Sidebar panel for inputs
+               sidebarPanel(
+                 
+                 # Input: Select a file
+                 fileInput(inputId = &quot;file1&quot;, 
+                           label = &quot;Choose File&quot;,
+                           multiple = FALSE),
+                 
+                 # Horizontal line
+                 tags$hr(),
+                 
+                 # Input: Checkbox if file has header
+                 checkboxInput(inputId = &quot;header&quot;, 
+                               label = &quot;Header&quot;, 
+                               value = TRUE),
+                 
+                 # Horizontal line
+                 tags$hr(),
+                 
+                 # Input: Select separator
+                 radioButtons(inputId = &quot;sep&quot;, 
+                              label = &quot;Separator&quot;,
+                              choices = c(Comma = &quot;,&quot;,
+                                          Semicolon = &quot;;&quot;,
+                                          Tab = &quot;\t&quot;),
+                              selected = &quot;\t&quot;),
+                 
+                 # Horizontal line
+                 tags$hr(),
+                 
+                 # Input: Select number of rows to display
+                 radioButtons(inputId = &quot;disp&quot;, 
+                              label = &quot;Display&quot;,
+                              choices = c(Head = &quot;head&quot;,
+                                          All = &quot;all&quot;),
+                              selected = &quot;head&quot;),
+                 
+                 # Horizontal line
+                 tags$hr(),
+                 
+                 # Input: Checkbox for summary output
+                 checkboxInput(inputId = &quot;summary&quot;, 
+                               label = &quot;Summary&quot;, 
+                               value = FALSE)
+                 
+               ),
+               
+               # Main panel for displaying outputs
+               mainPanel(
+                 
+                 # Output: Summary
+                 verbatimTextOutput(outputId = &quot;summary&quot;),
+                 
+                 # Horizontal line
+                 tags$hr(),
+                 
+                 # Output: Data file
+                 tableOutput(outputId = &quot;contents&quot;)
+                 
+               )
+               
+             )
+    ),
+    
+    tabPanel(&quot;Data Plotter&quot;,
+             
+             titlePanel(&quot;Plot Options&quot;),
+             
+             # Sidebar layout with input and output definitions
+             sidebarLayout(
+               
+               # Sidebar panel for inputs
+               sidebarPanel(
+                 
+                 # Input: Plotting parameters
+                 # &quot;Empty inputs&quot; - they will be updated after the data is uploaded
+                 
+                 # Input: X axis to plot
+                 selectInput(inputId = &quot;xcol&quot;, label = &quot;X variable&quot;, choices = &quot;&quot;),
+                 
+                 # Input: Y axis to plot
+                 selectInput(inputId = &quot;ycol&quot;, label = &quot;Y variable&quot;, choices = &quot;&quot;, selected = &quot;&quot;),
+                 
+                 # Input: Column to color dots
+                 selectInput(inputId = &quot;colorby&quot;, label = &quot;Colour&quot;, choices = &quot;&quot;, selected = &quot;&quot;),
+                 
+                 # Horizontal line
+                 tags$hr(),
+                 
+                 # Input: Boolean to facet
+                 radioButtons(inputId = &quot;facet&quot;, label = &quot;Facet&quot;, 
+                              choices = c(No = FALSE, 
+                                          Yes = TRUE), 
+                              selected = FALSE),
+                 
+                 # Input: Column to create facets
+                 selectInput(inputId = &quot;groupName&quot;, label = &quot;Facet Group&quot;, choices = &quot;&quot;, selected = &quot;&quot;),
+                 
+                 # Input: Subset data by group
+                 checkboxGroupInput(inputId = &quot;groupElements&quot;, label = &quot;Subset&quot;, choices = &quot;&quot;, selected = &quot;&quot;),
+                 
+                 # Horizontal line
+                 tags$hr(),
+                 
+                 # Input: Plot title
+                 textInput(inputId = &quot;main&quot;, label = &quot;Plot Title&quot;, value = &quot;My plot&quot;),
+                 
+                 # Input: X axis name
+                 textInput(inputId = &quot;xname&quot;, label = &quot;X-axis title&quot;, value = &quot;&quot;),
+                 
+                 # Input: Y axis name
+                 textInput(inputId = &quot;yname&quot;, label = &quot;Y-axis title&quot;, value = &quot;&quot;),
+                 
+                 # Horizontal line
+                 tags$hr(),
+                 
+                 # Input: Dot size
+                 sliderInput(inputId = &quot;dotsize&quot;, label = &quot;Dot size&quot;,
+                             value = 1, min = 0.5, max = 3, step = 0.5)
+                 
+               ),
+               
+               # Main panel for displaying outputs
+               mainPanel(
+                 
+                 # Plot data
+                 plotlyOutput('myplot')
+                 
+               )
+               
+             )
+             
+    )
+    
+  )
+  
+)
+
+# Define server logic
+server &lt;- function(input, output, session) {
+  # Reactive: Read data
+  df &lt;- reactive({
+    
+    # Check &quot;if&quot; file is there. &quot;if not&quot; do not run the next lines
+    req(input$file1)
+    
+    # Read data
+    dat &lt;- read.table(input$file1$datapath,
+                      header = input$header,
+                      sep = input$sep)
+    
+    # Update: changes on the 'plot parameters'
+    updateSelectInput(session, inputId = 'xcol', label = 'X Variable',
+                      choices = names(dat), selected = names(dat)[1])
+    updateSelectInput(session, inputId = 'ycol', label = 'Y Variable',
+                      choices = names(dat), selected = names(dat)[2])
+    updateSelectInput(session, inputId = 'colorby', label = 'Colour',
+                      choices = names(dat), selected = names(dat)[5])
+    updateSelectInput(session, inputId = 'groupName', label = 'Facet Group',
+                      choices = names(dat), selected = names(dat)[5])
+    
+    return(dat)
+    
+  })
+  
+  # Output: Summary
+  output$summary &lt;- renderPrint({
+    
+    # Return summary
+    if(input$summary) {
+      return(summary(df()))
+    }
+    # # Instead we could have basically used 'req()' function
+    # req(input$summary)
+    # return(summary(df()))
+    
+  })
+  
+  # Output: Full table  
+  output$contents &lt;- renderTable({
+    
+    if(input$disp == &quot;head&quot;) {
+      return(head(df()))
+    }
+    else {
+      return(df())
+    }
+    
+  })
+  
+  # Observe: changes on the 'plot parameters'
+  observe({
+    
+    # Observe: X axis title
+    updateTextInput(session, inputId = &quot;xname&quot;, label = &quot;X-axis title&quot;,
+                    value = input$xcol)
+    
+    # Observe: Y axis title
+    updateTextInput(session, inputId = &quot;yname&quot;, label = &quot;Y-axis title&quot;,
+                    value = input$ycol)
+    
+    # Observe: Subset elements in the column to facet
+    if(class(df()[[input$groupName]]) == &quot;numeric&quot;){
+      subgroup &lt;- character(0)
+    }else{
+      subgroup &lt;- sort(unique(df()[[input$groupName]]))
+    }
+    updateCheckboxGroupInput(session, inputId = &quot;groupElements&quot;,
+                             label = paste(&quot;Subset by:&quot;, input$groupName),
+                             choices = subgroup, selected = subgroup)
+    
+  })
+  
+  # Reactive: Subset the data if needed before plotting
+  dfsub &lt;- reactive({
+    
+    # subset df
+    if(class(df()[[input$groupName]]) == &quot;numeric&quot;){
+      dfsub &lt;- df()
+    }else{
+      dfsub &lt;- subset(df(), get(input$groupName) %in% input$groupElements) # Alternatively, we can only use this lione to subset data
+    }
+    
+    return(dfsub)
+    
+  })
+  
+  # Output: Plot
+  output$myplot &lt;- renderPlotly({
+    
+    pbase &lt;- ggplot(data = dfsub(),
+                    aes_string(x = input$xcol,
+                               y = input$ycol,
+                               colour = input$colorby)) + 
+      geom_point(size=input$dotsize) +
+      ggtitle(input$main) +
+      xlab(input$xname) + 
+      ylab(input$yname)
+    
+    if(input$facet){
+      p &lt;- pbase + facet_grid(input$groupName)
+      p &lt;- ggplotly(p)
+    }else{
+      p &lt;- ggplotly(pbase)
+    }
+    
+    return(p)
+    
+  })
+  
+}
+
+# Run the app
+shinyApp(ui = ui, server = server)</code></pre>
+</div>
+</div>
+</div>
+<div id="acknowledgements" class="section level1">
+<h1><span class="header-section-number">7</span> Acknowledgements</h1>
+<p>Many thanks to</p>
+<ul>
+<li><a href="https://cbmr.ku.dk/staff_overview/?id=455262&amp;vis=medarbejder">Lars Roed Ingerslev</a></li>
+<li><a href="https://cbmr.ku.dk/staff_overview/?pure=en/persons/627189">Julia Villarroel</a></li>
+<li><a href="https://cbmr.ku.dk/staff_overview/?pure=en/persons/611319">Leonidas Lundell</a></li>
+</ul>
+<p>for their endless help and great ideas during the preparation of this tutorial.</p>
 </div>
 
 

@@ -2,7 +2,9 @@ library(shiny)
 library(ggplot2)
 library(plotly)
 library(ggplotify)
-# library(magrittr)
+
+#library(magrittr)
+#library(dplyr)
 
 # Define UI for data upload app
 ui <- fluidPage(
@@ -40,7 +42,7 @@ ui <- fluidPage(
                               choices = c(Comma = ",",
                                           Semicolon = ";",
                                           Tab = "\t"),
-                              selected = ","),
+                              selected = "\t"),
                  
                  # Horizontal line
                  tags$hr(),
@@ -63,7 +65,6 @@ ui <- fluidPage(
                ),
                
                
-               # Sidebar layout with input and output definitions
                # Main panel for displaying outputs
                mainPanel(
                  
@@ -75,7 +76,6 @@ ui <- fluidPage(
                  
                  # Output: Data file
                  tableOutput(outputId = "contents")
-                 
                )
              )
              
@@ -87,15 +87,20 @@ ui <- fluidPage(
                
                sidebarPanel(
                  # "Empty inputs" - they will be updated after the data is uploaded
-                 selectInput('xcol', 'X Variable', ""),
-                 selectInput('ycol', 'Y Variable', "", selected = ""),
+                 selectInput('xcol', 'X variable', ""),
+                 selectInput('ycol', 'Y variable', "", selected = ""),
                  selectInput('colorby', 'Colour', "", selected = ""),
                  radioButtons('facet', 'Facet',
                               c(No=FALSE,
                                 Yes=TRUE),
                               FALSE),
-                 selectInput('group', 'Group', "", selected = ""),
-                 textInput(inputId = "main", label = "Plot title", value = "My plot")
+                 selectInput('group', 'Facet Group', "", selected = ""),
+                 textInput(inputId = "main", label = "Plot Title", value = "My plot"),
+                 textInput(inputId = "xname", label = "X-axis title", value = ""),
+                 textInput(inputId = "yname", label = "Y-axis title", value = ""),
+                 checkboxGroupInput(inputId = "subset", label = "Subset", choices = "", selected = ""),
+                 sliderInput(inputId = "dotsize", label = "Dot size",
+                             value = 1, min = 0.5, max = 3, step = 0.5)
                ),
                
                mainPanel(
@@ -115,11 +120,20 @@ server <- function(input, output, session) {
     
     req(input$file1)
     
-    df <- read.table(input$file1$datapath,
-                     header = input$header,
-                     sep = input$sep)
+    dat <- read.table(input$file1$datapath,
+                      header = input$header,
+                      sep = input$sep)
     
-    return(df)
+    updateSelectInput(session, inputId = 'xcol', label = 'X Variable',
+                      choices = names(dat), selected = names(dat)[1])
+    updateSelectInput(session, inputId = 'ycol', label = 'Y Variable',
+                      choices = names(dat), selected = names(dat)[2])
+    updateSelectInput(session, inputId = 'colorby', label = 'Colour',
+                      choices = names(dat), selected = names(dat)[5])
+    updateSelectInput(session, inputId = 'group', label = 'Facet Group',
+                      choices = names(dat), selected = names(dat)[5])
+    
+    return(dat)
     
   })
   
@@ -145,25 +159,53 @@ server <- function(input, output, session) {
     
   })
   
-  # Observe: changes on the 'plot parameters'
+  # # Observe: changes on the 'plot parameters'
+  # observe({
+  #   updateSelectInput(session, inputId = 'xcol', label = 'X Variable',
+  #                     choices = names(df()), selected = names(df())[1])
+  #   updateSelectInput(session, inputId = 'ycol', label = 'Y Variable',
+  #                     choices = names(df()), selected = names(df())[2])
+  #   updateSelectInput(session, inputId = 'colorby', label = 'Colour',
+  #                     choices = names(df()), selected = names(df())[5])
+  #   updateSelectInput(session, inputId = 'group', label = 'Facet Group',
+  #                     choices = names(df), selected = names(df())[5])
+  # })
+
+  # Observe: after input is updated, observe again
   observe({
-    updateSelectInput(session, inputId = 'xcol', label = 'X Variable',
-                      choices = names(df()), selected = names(df())[1])
-    updateSelectInput(session, inputId = 'ycol', label = 'Y Variable',
-                      choices = names(df()), selected = names(df())[2])
-    updateSelectInput(session, inputId = 'colorby', label = 'Colour',
-                      choices = names(df()), selected = names(df())[5])
-    updateSelectInput(session, inputId = 'group', label = 'Facet Group',
-                      choices = names(df()), selected = names(df())[5])
+    updateTextInput(session, inputId = "xname", label = "X-axis title",
+                    value = input$xcol)
+    updateTextInput(session, inputId = "yname", label = "Y-axis title",
+                    value = input$ycol)
+    
+    if(class(df()[[input$group]]) == "numeric"){
+      subgroup <- character(0)
+    }else{
+      subgroup <- sort(unique(df()[[input$group]]))
+    }
+    updateCheckboxGroupInput(session, inputId = "subset", label = paste("Subset by:", input$group),
+                             choices = subgroup, selected = subgroup)
+    
+  })
+  
+  # Reactive: data for plotting (for subsetting)
+  dfsub <- reactive({
+    # subset df
+    dfsub <- subset(df(), get(input$group) %in% input$subset)
+    return(dfsub)
   })
   
   # Output: Plot
   output$myplot <- renderPlotly({
     
-    pbase <- ggplot(data = df(), aes_string(x = input$xcol,
-                                            y = input$ycol,
-                                            colour = input$colorby)) + 
-      geom_point()
+    pbase <- ggplot(data = dfsub(),
+                    aes_string(x = input$xcol,
+                               y = input$ycol,
+                               colour = input$colorby)) + 
+      geom_point(size=input$dotsize) +
+      ggtitle(input$main) +
+      xlab(input$xname) + 
+      ylab(input$yname)
     
     if(input$facet){
       p <- pbase + facet_grid(input$group)

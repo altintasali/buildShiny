@@ -37,7 +37,7 @@ ui <- fluidPage(
                                Semicolon = ";",
                                Tab = "\t"),
                    selected = "\t"),
-
+      
       # Horizontal line
       tags$hr(),
       
@@ -53,9 +53,6 @@ ui <- fluidPage(
       # Input: Column to color dots
       selectInput(inputId = "colorby", label = "Colour", choices = "", selected = ""),
       
-      # Horizontal line
-      tags$hr(),
-      
       # Input: Boolean to facet
       radioButtons(inputId = "facet", label = "Facet", 
                    choices = c(No = FALSE, 
@@ -64,12 +61,6 @@ ui <- fluidPage(
       
       # Input: Column to create facets
       selectInput(inputId = "groupName", label = "Facet Group", choices = "", selected = ""),
-      
-      # Input: Subset data by group
-      checkboxGroupInput(inputId = "groupElements", label = "Subset", choices = "", selected = ""),
-      
-      # Horizontal line
-      tags$hr(),
       
       # Input: Plot title
       textInput(inputId = "main", label = "Plot Title", value = "My plot"),
@@ -80,12 +71,8 @@ ui <- fluidPage(
       # Input: Y axis name
       textInput(inputId = "yname", label = "Y-axis title", value = ""),
       
-      # Horizontal line
-      tags$hr(),
-      
-      # Input: Dot size
-      sliderInput(inputId = "dotsize", label = "Dot size",
-                  value = 1, min = 0.5, max = 3, step = 0.5)
+      # Input: Subset data by group
+      checkboxGroupInput(inputId = "groupElements", label = "Subset", choices = "", selected = "")
       
     ),
     
@@ -124,11 +111,11 @@ server <- function(input, output, session) {
                       choices = names(dat), selected = names(dat)[5])
     updateSelectInput(session, inputId = 'groupName', label = 'Facet Group',
                       choices = names(dat), selected = names(dat)[5])
-
+    
     return(dat)
     
   })
-
+  
   # Observe: changes on the 'plot parameters'
   observe({
     
@@ -139,7 +126,7 @@ server <- function(input, output, session) {
     # Observe: Y axis title
     updateTextInput(session, inputId = "yname", label = "Y-axis title",
                     value = input$ycol)
-
+    
     # Observe: Subset elements in the column to facet
     if(class(df()[[input$groupName]]) == "numeric"){
       subgroup <- character(0)
@@ -149,17 +136,16 @@ server <- function(input, output, session) {
     updateCheckboxGroupInput(session, inputId = "groupElements",
                              label = paste("Subset by:", input$groupName),
                              choices = subgroup, selected = subgroup)
-    
   })
   
   # Reactive: Subset the data if needed before plotting
   dfsub <- reactive({
-    
-    # subset df
+   
+     # subset df
     if(class(df()[[input$groupName]]) == "numeric"){
       dfsub <- df()
     }else{
-      dfsub <- subset(df(), get(input$groupName) %in% input$groupElements) # Alternatively, we can only use this line to subset data
+      dfsub <- subset(df(), get(input$groupName) %in% input$groupElements) # Alternatively, we can only use this lione to subset data
     }
     
     return(dfsub)
@@ -173,7 +159,7 @@ server <- function(input, output, session) {
                     aes_string(x = input$xcol,
                                y = input$ycol,
                                colour = input$colorby)) + 
-      geom_point(size=input$dotsize) +
+      geom_point() +
       ggtitle(input$main) +
       xlab(input$xname) + 
       ylab(input$yname)
