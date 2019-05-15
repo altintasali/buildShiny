@@ -218,7 +218,7 @@ server <- function(input, output, session) {
                     value = input$ycol)
     
     # Observe: Subset elements in the column to facet
-    if(class(df()[[input$groupName]]) == "numeric"){
+    if(is.numeric(df()[[input$groupName]])){
       subgroup <- character(0)
     }else{
       subgroup <- sort(unique(df()[[input$groupName]]))
@@ -233,10 +233,10 @@ server <- function(input, output, session) {
   dfsub <- reactive({
     
     # subset df
-    if(class(df()[[input$groupName]]) == "numeric"){
+    if(is.numeric(df()[[input$groupName]])){
       dfsub <- df()
     }else{
-      dfsub <- subset(df(), get(input$groupName) %in% input$groupElements) # Alternatively, we can only use this lione to subset data
+      dfsub <- subset(df(), get(input$groupName) %in% input$groupElements) 
     }
     
     return(dfsub)

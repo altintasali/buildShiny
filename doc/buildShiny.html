@@ -1000,7 +1000,7 @@ shinyApp(ui, server)</code></pre>
 </ol>
 <p>Hint 1: use <code>checkboxGroupInput</code> for <strong>UI</strong></p>
 <p>Hint 2: use <code>observe</code> on <strong>Server</strong> function. Inside the <code>observe</code> function, you can use <code>updateCheckboxGroupInput</code></p>
-<p>Hint 3: To make sure only subsetting with with dicrete variables, use <code>if(class(df()[[input$groupName]]) == &quot;numeric&quot;)</code> inside <code>observe</code></p>
+<p>Hint 3: To make sure only subsetting with with dicrete variables, use <code>is.numeric(df()[[input$groupName]]))</code> inside <code>observe</code></p>
 <p>Hint 4: Create a new <code>reactive</code> with subsetted data using <code>subset</code></p>
 <p>Hint 5: Plot only the subsetted data <code>reactive</code></p>
 <p>
@@ -1022,7 +1022,7 @@ shinyApp(ui, server)</code></pre>
 
     # Inside observe{()} (...)
     # Observe: Subset elements in the column to facet
-    if(class(df()[[input$groupName]]) == &quot;numeric&quot;){
+    if(is.numeric(df()[[input$groupName]])){
       subgroup &lt;- character(0)
     }else{
       subgroup &lt;- sort(unique(df()[[input$groupName]]))
@@ -1036,7 +1036,7 @@ shinyApp(ui, server)</code></pre>
     dfsub &lt;- reactive({
      
        # subset df
-      if(class(df()[[input$groupName]]) == &quot;numeric&quot;){
+      if(is.numeric(df()[[input$groupName]])){
         dfsub &lt;- df()
       }else{
         dfsub &lt;- subset(df(), get(input$groupName) %in% input$groupElements) # Alternatively, we can only use this line to subset data
@@ -1204,7 +1204,7 @@ server &lt;- function(input, output, session) {
                     value = input$ycol)
 
     # Observe: Subset elements in the column to facet
-    if(class(df()[[input$groupName]]) == &quot;numeric&quot;){
+    if(is.numeric(df()[[input$groupName]])){
       subgroup &lt;- character(0)
     }else{
       subgroup &lt;- sort(unique(df()[[input$groupName]]))
@@ -1219,7 +1219,7 @@ server &lt;- function(input, output, session) {
   dfsub &lt;- reactive({
     
     # subset df
-    if(class(df()[[input$groupName]]) == &quot;numeric&quot;){
+    if(is.numeric(df()[[input$groupName]])){
       dfsub &lt;- df()
     }else{
       dfsub &lt;- subset(df(), get(input$groupName) %in% input$groupElements) # Alternatively, we can only use this line to subset data
@@ -1538,7 +1538,7 @@ server &lt;- function(input, output, session) {
                     value = input$ycol)
     
     # Observe: Subset elements in the column to facet
-    if(class(df()[[input$groupName]]) == &quot;numeric&quot;){
+    if(is.numeric(df()[[input$groupName]])){
       subgroup &lt;- character(0)
     }else{
       subgroup &lt;- sort(unique(df()[[input$groupName]]))
@@ -1553,7 +1553,7 @@ server &lt;- function(input, output, session) {
   dfsub &lt;- reactive({
     
     # subset df
-    if(class(df()[[input$groupName]]) == &quot;numeric&quot;){
+    if(is.numeric(df()[[input$groupName]])){
       dfsub &lt;- df()
     }else{
       dfsub &lt;- subset(df(), get(input$groupName) %in% input$groupElements) # Alternatively, we can only use this lione to subset data
