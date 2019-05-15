@@ -298,6 +298,8 @@ library(shiny)
 
 # Define UI
 ui <- fluidPage(
+  
+  # Page title
   titlePanel("My app"),
   
   # Sidebar layout with input and output definitions
